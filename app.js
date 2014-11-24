@@ -2,7 +2,7 @@ var express     = require('express');
 var app         = express();
 var server      = require('http').createServer(app);
 var io          = require('socket.io')(server);
-var http				= require('http');
+var http                                = require('http');
 
 app.set('port',process.env.PORT || 3000);
 app.use(express.static(__dirname + '/public'));
@@ -30,26 +30,32 @@ io.sockets.on('connection', function(socket)
 												res.on('data', function(chunk){
 													var JSONobj = JSON.parse(chunk);
 																console.log(res.statusCode);
-																if(JSONobj['status'] == 200 && JSONobj['code'] == 'user_authenticated'){
-																				console.log(true);
+																console.log('User ' + ud.username + ' joins in channel ' + ud.cid);
+																socket.join(ud.cid);
+																
+																//if(JSONobj['status'] == 200 && JSONobj['code'] == 'user_authenticated'){
+																if(res.statusCode == 200 && JSONobj['code'] == 'user_authenticated'){                           
 																				io.in(ud.cid).emit('allow-chat-input',{allow: true, cid: ud.cid});
+																				//io.in(ud.cid).emit('update-ui', {msgtype: 'notification', user: ud.username, msg: 'You have successfully connected to Channel ' + ud.cid, cid:ud.cid});
 																} else {
-																				console.log(false);
 																				io.in(ud.cid).emit('allow-chat-input',{allow: false, cid: ud.cid});
+																				//io.in(ud.cid).emit('update-ui', {msgtype: 'notification', user: ud.username, msg: 'Welcome ' + ud.username + ' to Channel ' + ud.cid, cid:ud.cid});
 																}
+																
 												});
 								}).on('error', function(e){
 									console.log('Got an error : ' + e.message);
 								});
 								
-								console.log('User ' + ud.username + ' joins in channel ' + ud.cid);
-								socket.join(ud.cid);
+								//console.log('User ' + ud.username + ' joins in channel ' + ud.cid);
+								//socket.join(ud.cid);
+								//
+								//if (ud.username.indexOf('Guest') < 0) {
+								//				io.in(ud.cid).emit('update-ui', {msgtype: 'notification', user: ud.username, msg: 'You have successfully connected to Channel ' + ud.cid, cid:ud.cid});         
+								//} else {
+								//				io.in(ud.cid).emit('update-ui', {msgtype: 'notification', user: ud.username, msg: 'Welcome ' + ud.username + ' to Channel ' + ud.cid, cid:ud.cid});
+								//}
 								
-								if (ud.username.indexOf('Guest') < 0) {
-												io.in(ud.cid).emit('update-ui', {msgtype: 'notification', user: ud.username, msg: 'You have successfully connected to Channel ' + ud.cid, cid:ud.cid});		
-								} else {
-												io.in(ud.cid).emit('update-ui', {msgtype: 'notification', user: ud.username, msg: 'Welcome ' + ud.username + ' to Channel ' + ud.cid, cid:ud.cid});
-								}
 				});
 				
 				socket.on('send-gm', function(ud){
