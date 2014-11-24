@@ -20,18 +20,18 @@ io.sockets.on('connection', function(socket)
 	socket.on('auth_user', function(ud){
 					
     	var options = {
-						host:'54.255.176.250',
-						path:'http://54.255.176.250/authenticate?access='+ud.accesscd+'&user='+ud.userid
-    				   };
+			host:'54.255.176.250',
+			path:'http://54.255.176.250/authenticate?access='+ud.accesscd+'&user='+ud.userid
+    			};
 					
 		http.get(options, function(res){
 			res.statusCode;
 			res.setEncoding('utf8');
 			res.on('data', function(chunk){
 				var JSONobj = JSON.parse(chunk);
-							if(JSONobj['status'] == 200 && JSONobj['code'] == 'user_authenticated'){
-											uservalidated = true;
-							}
+				if(JSONobj['status'] == 200 && JSONobj['code'] == 'user_authenticated'){
+								uservalidated = true;
+				}
 			});
 		}).on('error', function(e){
 			console.log('Got an error : ' + e.message);
