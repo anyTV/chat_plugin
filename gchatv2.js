@@ -1,10 +1,10 @@
-$.fn.initChatBox = function(chl, usr) {
+$.fn.initChatBox = function(chl, usr)
+{
     var chatUI;
     var msgNotify;
     var msgChat;
-    
+
     var socket;
-    
     /* User Information */
     var uid, uname, avatar, detail, acode;
     /* Channel Information */
@@ -16,15 +16,17 @@ $.fn.initChatBox = function(chl, usr) {
     var notify='';
 
     dt          = new Date();
-    /* socket   = io.connect([poth-to-chat-server-address]); */
-    socket      = io.connect('http://localhost:3000');
 
-    /* Checking if templates are properly loaded     
+    socket      = io.connect('http://54.169.67.100:3000');
+    //socket      = io.connect('http://localhost:3000');
+
+    /* Checking if templates are properly loaded
         alert(chatUI);
         alert(msgNotify);
         alert(msgChat);
     */;
-    
+
+
     if (typeof chl.id == 'undefined' && typeof chl.title == 'undefined') {
         chid = '1';
         chname = 'Chat Room ' + chid;
@@ -32,11 +34,11 @@ $.fn.initChatBox = function(chl, usr) {
         chid = chl.id;
         chname = chl.title;
     }
-    
+
     chatUI      = $('#chatui').html().replace(/{cid}/ig,chid);
     msgNotify   = $('#gchatnotify').html().replace(/{cid}/ig,chid);
     msgChat     = $('#chatms').html().replace(/{cid}/ig,chid);
-        
+    
     if (usr.user_id && usr.access_code) {
         uid         = usr.user_id;
         uname       = usr.username;
@@ -50,12 +52,13 @@ $.fn.initChatBox = function(chl, usr) {
         detail      = 'none';
         acode       = uid;
     }
-    
+
     gchatdiv        = '#'+this.attr('id');
     btnname         = '#btn-'+chid;
     txtname         = '#msgs-'+chid;
-    
-    $(gchatdiv).on("click", btnname, function() {
+
+    $(gchatdiv).on("click", btnname, function(){
+        console.log('Sending a message to server');
         txtctrl = '#msgs-'+chid;
         ud = {
             userid        : uid,
@@ -71,8 +74,8 @@ $.fn.initChatBox = function(chl, usr) {
         $(txtctrl).val('');
         $(txtctrl).focus();
     });
-    
-    $(gchatdiv).on("keypress", txtname, function(evt) {
+
+    $(gchatdiv).on("keypress", txtname, function(evt){
         if (evt.which == 13) {
             txtctrl = '#msgs-'+chid;
             ud = {
@@ -87,11 +90,12 @@ $.fn.initChatBox = function(chl, usr) {
              };
             socket.emit('send-gm', ud);
             $(txtctrl).val('');
-            $(txtctrl).focus(); 
+            $(txtctrl).focus();
         }
     });
-        
-    socket.on('connect', function() {
+
+    socket.on('connect', function()
+    {
         ud = {
                 userid        : uid,
                 username      : uname,
@@ -103,18 +107,23 @@ $.fn.initChatBox = function(chl, usr) {
             };
         socket.emit('auth_user',ud);
     });
-    
-    socket.on('allow-chat-input', function(sd) {
-        if(sd.allow == false) {
+
+    socket.on('allow-chat-input', function(sd){
+        if(sd.allow == false){
             $('#chatinputs-'+ sd.cid).css('display','none');
-        } 
+            $('#notifylogin-'+sd.cid).css({'display':'block', 'color':'black', 'font-weight':'bolder'});
+        } else {
+            $('#chatinputs-'+ sd.cid).css('display','block');
+            $('#notifylogin-'+sd.cid).remove();
+        }               
     });
-    
-    socket.on('update-ui', function(sd) {
+
+    socket.on('update-ui', function(sd){
+
         var today   = new Date();
         var tinmins;
-        var timesent, elem;         
-        
+        var timesent, elem;
+
         if (sd.cid == chl.id) {
             console.log('Update chatbox for channel ' + sd.cid);
             if (sd.msgtype == 'notification') {
@@ -127,7 +136,7 @@ $.fn.initChatBox = function(chl, usr) {
                 } else {
                     tinmins = today.getMinutes();
                 }
-                
+
                 msgbox      = '#tblchatmsgs-' + sd.cid;
                 if (today.getHours() > 11) {
                     timesent = today.getHours() + ':' + tinmins + 'PM';
@@ -135,25 +144,25 @@ $.fn.initChatBox = function(chl, usr) {
                 else {
                     timesent = today.getHours() + ':' + tinmins + 'AM';
                 }
-                
+
                 $(msgbox).append(msgChat.replace(/{message}/ig,sd.msg).replace(/{username}/ig, sd.user).replace(/{avatar}/ig, sd.uavatar).replace(/{timesent}/ig, 'Sent on ' + timesent));
             }
-            
+
             window.setInterval(function() {
                 elem = document.getElementById('chcontainer-'+sd.cid);
                 elem.scrollTop = elem.scrollHeight;
-            }, 2000); 
+            }, 2000);
         }
     });
-    
-    socket.on('createroom', function(user, newchannel) {
+
+    socket.on('createroom', function(user, newchannel){
         socket.emit('newroom',{username: user, channel: newchannel})
-    }); 
-    
-    socket.on('leaveroom', function(user) {  
+    });
+
+    socket.on('leaveroom', function(user){
         socket.emit('leaveroom',{username : user})
     });
-    
+
     console.log(this.attr('id'));
     this.append(chatUI);
     return false;
