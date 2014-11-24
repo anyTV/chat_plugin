@@ -16,6 +16,7 @@ On frontend/client:
    ````<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>````
 
 2. Add the following script to your frontend source:
+   ````
    <script src="[path-to-file]/socketio.js"></script>
    <script src="[path-to-file]/gchatv2.js"></script>
 
@@ -54,12 +55,12 @@ On frontend/client:
 	      	</td>
 	  </tr>
     </script>
-   
+   ````
 
 3. Add the following scripts on your frontend/client code :
    
    For : Prompt input of Channel and Username
-
+````
    <scripts type="text/javascript">
 	$(function(){
 			var userinfo	= utilCookie.get('user');
@@ -67,7 +68,7 @@ On frontend/client:
             $(#[chat-holder-element]).initChatBox([channelinfo], [userinfo]);
         });
    </script>
-
+````
 
 
 
